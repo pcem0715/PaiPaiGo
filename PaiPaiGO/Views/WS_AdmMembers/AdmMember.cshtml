@@ -1,0 +1,207 @@
+﻿@model X.PagedList.IPagedList<PaiPaiGO.Models.Member>
+
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@using X.PagedList.Web.Common;
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理員 會員</title>
+
+    <!-- js -->
+    <script src="script.js"></script>
+    <!-- JQ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Boostrap 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    <style>
+        /* 瑋珊新增的樣式 */
+        /* 上方選單 */
+        .menu {
+            width: 8em;
+            margin-right: 2em;
+            /* 選單間距 */
+        }
+
+        /* 關鍵字寬度 */
+        .search-input {
+            width: 10em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container-fluid mt-2">
+        <div class="row">
+            <!-- 左側nav -->
+            <div class=" col-1 d-flex flex-column  bg-light">
+                <ul class="nav nav-pills nav-flush flex-column mb-auto text-left">
+                    <li>
+                        <a asp-controller="WS_AdmMissions" asp-action="WS_AdmMission" class="nav-link py-3 border-bottom">
+                            <i class="fa-solid fa-list-check" style="font-size: 30px;" title="任務明細"
+                               data-bs-toggle="tooltip" data-bs-placement="right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a asp-controller="WS_AdmMembers" asp-action="AdmMember" class="nav-link py-3 border-bottom">
+                            <i class="fa-solid fa-circle-user" style="font-size: 30px;" title="會員管理"
+                               data-bs-toggle="tooltip" data-bs-placement="right"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="WS_Opinions" asp-action="AdmOpinion" class="nav-link  py-3 border-bottom">
+                            <i class="fa-solid fa-star" style="font-size: 30px;" title="評論管理"
+                               data-bs-toggle="tooltip" data-bs-placement="right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 中間區塊 -->
+            <div class="container col-10">
+                <!-- 上方選單-->
+                <div class="mt-3 d-flex">
+                    <lable class="fs-4">狀態：</lable>
+                    <select id="memberStatusFilter" class="form-control" style="width:10%">
+                        <option value="" style="display:none">所有狀態</option>
+                        @foreach (var status in (SelectList)ViewBag.MemberStatusList)
+                        {
+                            <option value="@status.Value">@status.Text</option>
+                        }
+                    </select>
+                    <form  class="d-flex " style="padding-left: 1025px;">
+                    <input type="text" class="form-control search-input fs-5" placeholder="請輸入關鍵字" style="width:250px">
+                    <input type="submit" value="搜尋" class="fs-5"/>
+                    </form>
+                </div>
+                <button type="button" class="btn btn-danger btn btn-primary fs-5" id="saveChangesButton" style="float: right; margin-bottom: 30px;	margin-top: 20px">
+                    保存變更
+                </button>
+                <!--這裡放Partial-Member的Tbale -->
+                <div id="memberListPartial">
+                    @Html.Partial("_MemberListPartial", Model)
+                </div>
+
+                <!-- 警告彈跳視窗 -->
+                <div class="modal fade" id="myModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <!-- Modal Header -->
+                            <div class="modal-header">
+                                <h4 class="modal-title">警告紀錄</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+
+                            <!-- Modal body -->
+                            <div class="modal-body fs-4" >
+                                @*@Html.Partial("_OpinionPartial")*@ <!-- 使用Partial View來呈現Opinion.cs的資料 -->
+                                <table>
+                                    <tr>
+                                        <th>任務編號</th>
+                                        <th style="width:40%">任務名稱</th>
+                                        <th style="width:40%">警告內容</th>
+                                    </tr>
+                                    <tr>
+                                        <td>2023110215</td>
+                                            <td>小潘蛋糕代購</td>
+                                        <td>未準時送達</td>
+                                        </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--分頁跳轉-->
+                <div style="justify-content: center ; display:flex;">
+                    @Html.PagedListPager(Model, page => Url.Action("AdmMember",
+                    new { page}), new PagedListRenderOptions {
+                    LiElementClasses = new string[] { "page-item" },
+                    PageClasses = new string[] { "page-link" }})
+                </div>
+            </div>
+
+            <!-- 最右邊 -->
+            <div class="col-1"><!-- 這裡保留空位，不放任何内容 --></div>
+        </div>
+
+    </div>
+
+    <script>
+        /* global bootstrap: false  左側導覽*/
+        (function () {
+            'use strict'
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        })()
+
+    </script>
+    
+
+    <!--改停權狀況-->
+    <script>
+        //改資料庫內容(switch checkbox)
+        $(document).ready(function () {
+            var statusChanges = []; // 設一個statusChanges(本地)的list，用來保存更改  (有保存變更按鈕)
+
+            $(".member-checkbox").change(function () {
+                var memberId = $(this).data("member-id");
+                var initialStatus = $(this).data("initial-status");
+                var newStatus = $(this).prop("checked") ? "正常" : "封鎖";
+
+                // 紀錄到changesQueue(本地)的list
+                statusChanges.push({ memberId: memberId, newStatus: newStatus, initialStatus: initialStatus });
+            });
+
+            $("#saveChangesButton").click(function () {
+                // 發送更改到Server
+                $.ajax({
+                    type: "POST",
+                    url: "/WS_AdmMembers/UpdateStatus",
+                    data: { changes: statusChanges },
+                    dataType: "json",
+                    success: function (data) {
+                        // 處理成功show出來
+                    },
+                    error: function () {
+                        // 處理錯誤show出來
+                        console.error('保存更改失败');
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!--下拉選單-->
+    <script>
+        $(document).ready(function () {
+            // 監聽下拉選單的變化事件
+            $('#memberStatusFilter').on('change', function () {
+                var selectedStatus = $('#memberStatusFilter option:selected').text();
+                // 發送AJAX請求到後端控制器
+                $.ajax({
+                    url: '@Url.Action("AdmMember", "WS_AdmMembers")',
+                    type: 'GET',
+                    data: { memberStatusFilter: selectedStatus },
+                    success: function (result) {
+                        // 更新PartialView的內容
+                        $('#memberListPartial').html(result);
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
